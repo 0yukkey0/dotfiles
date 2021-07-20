@@ -1,7 +1,7 @@
 #!/bin/bash
 
 readonly DOT_DIRECTORY="${HOME}/dotfiles"
-readonly SPECIFY_FILES="Brewfile" # 複数ファイルは""の中に半角スペース空けで入力しましょう
+readonly SPECIFY_FILES="Brewfile"
 
 function deploy() {
   # ドットファイルとドットファイル以外の特定ファイルを回す
@@ -12,7 +12,7 @@ function deploy() {
     [[ ${f} = ".gitmodules" ]] && continue
     [[ ${f} = ".DS_Store" ]] && continue
     [[ ${f} = ".travis.yml" ]] && continue
-    ln -snfv ${DOT_DIRECTORY}/${f} ${HOME}/${f}
+    ln -snfv "${DOT_DIRECTORY}"/"${f}" "${HOME}"/"${f}"
   done
   echo "Deploy dotfiles complete!"
 }
