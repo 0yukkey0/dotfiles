@@ -35,8 +35,10 @@ zinit wait lucid for \
     zsh-users/zsh-completions \
  atload"!_zsh_autosuggest_start" \
     zsh-users/zsh-autosuggestions
- 
 
+## cdを超強化
+#zinit load "b4b4r07/enhancd", use:"init.sh", lazy:true
+zinit light b4b4r07/enhancd 
 ## 補完で小文字でも大文字にマッチさせる
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
