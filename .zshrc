@@ -25,7 +25,6 @@ zinit ice depth=1; zinit light romkatv/powerlevel10k
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-
 zinit wait lucid for \
  atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" \
     zdharma/fast-syntax-highlighting \
@@ -38,19 +37,16 @@ zinit wait lucid for \
 
 ## cdを超強化
 #zinit load "b4b4r07/enhancd", use:"init.sh", lazy:true
-zinit light b4b4r07/enhancd 
+zinit light b4b4r07/enhancd
 ## 補完で小文字でも大文字にマッチさせる
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
 ## 補完候補を一覧表示したとき、Tabや矢印で選択できるようにする
-zstyle ':completion:*:default' menu select=1 
-
-## git open でリモートリポジトリをブラウザで開く
-zinit light paulirish/git-open
+zstyle ':completion:*:default' menu select=1
 
 ## コマンド履歴検索
 function peco-history-selection() {
-  BUFFER=`history -n 1 | tac  | awk '!a[$0]++' | peco`
+  BUFFER=`history -n 1 | peco`
   CURSOR=$#BUFFER
   zle reset-prompt
 }
@@ -69,18 +65,12 @@ zle -N peco-src
 bindkey '^G' peco-src
 
 ## 履歴保存管理
-HISTSIZE=100000
-SAVEHIST=1000000
+# メモリに保存する履歴の件数を指定する
+export HISTSIZE=10000
 
-## 他のzshと履歴を共有
-setopt inc_append_history
-setopt share_history
+# ファイルに保存する履歴の件数を指定する
+export SAVEHIST=1000000
 
-## パスを直接入力してもcdする
-setopt AUTO_CD
-
-## 環境変数を補完
-setopt AUTO_PARAM_KEYS
 
 zinit ice as"program" from"gh-r" mv"bat* -> bat" pick"bat/bat"
 zinit light sharkdp/bat
@@ -94,12 +84,6 @@ fi
 autoload -Uz colors
 colors
 
-# ビープ音の停止
-setopt no_beep
- 
-# ビープ音の停止(補完時)
-setopt nolistbeep
-
 # 補完で小文字でも大文字にマッチさせる
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
@@ -107,29 +91,30 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 # 続けて [TAB] を押すと候補からパス名を選択できるようになる
 # 候補を選ぶには [TAB] か Ctrl-N,B,F,P
 zstyle ':completion:*:default' menu select=1
- 
-# コマンドのスペルを訂正する
-setopt correct
-
-# 直前と同じコマンドの場合はヒストリに追加しない
-setopt hist_ignore_dups
- 
-# 同じコマンドをヒストリに残さない
-setopt hist_ignore_all_dups
 
 # nvm
 export NVM_DIR="$HOME/.nvm"
-[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  
+[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"
 
 # pyenv
-export PYENV_ROOT=/usr/local/var/pyenv
-export PATH="$PYENV_ROOT/bin:$PATH"
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"i
+eval "$(pyenv init --path)"
 # pyenvさんに自動補完機能を提供してもらう
 if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init -)"
 fi
 
+#poetry
+export PATH="/Users/yuki-yoshii/.local/bin:$PATH"
 
+
+# mysql
+export PATH="/usr/local/opt/mysql@5.7/bin:$PATH"
+
+# java
+export JAVA_HOME=/Users/yuki-yoshii/.sdkman/candidates/java/current/bin/java
+export PATH="$JAVA_HOME:$PATH"
 #########
 # alias #
 #########
@@ -146,11 +131,26 @@ alias npm_list='npm list --depth=0'
 ## git
 alias g='git'
 alias ga='git add'
-alias gd='git diff'
 alias gs='git status'
 alias gp='git push'
-alias gb='git branch'
-alias gco='git checkout'
-alias gf='git fetch'
-alias gc='git commit'
 alias gb-dd='git branch --merged |egrep -v '\''\*|master'\''| xargs git branch -d'
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# flutter
+export PATH="$PATH":"$HOME/fvm/default/bin"
+
+# rvenv
+eval "$(rbenv init - zsh)"
+
+# ADBコマンド
+export PATH="$PATH":"/Users/yuki-yoshii/Library/Android/sdk/platform-tools/"
+
+#rust
+source "$HOME/.cargo/env"
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/yuki-yoshii/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
