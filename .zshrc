@@ -117,17 +117,30 @@ setopt hist_ignore_dups
 # 同じコマンドをヒストリに残さない
 setopt hist_ignore_all_dups
 
+
+########
+# PATH #
+########
+
 # nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  
 
 # pyenv
-export PYENV_ROOT=/usr/local/var/pyenv
+export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
 # pyenvさんに自動補完機能を提供してもらう
 if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init -)"
 fi
+
+# go
+# export GOPATH=$(go env GOPATH)
+# export PATH=$PATH:$GOPATH/bin
+
+# flutter
+export PATH=$PATH:$HOME/flutter/bin
 
 
 #########
@@ -154,3 +167,10 @@ alias gco='git checkout'
 alias gf='git fetch'
 alias gc='git commit'
 alias gb-dd='git branch --merged |egrep -v '\''\*|master'\''| xargs git branch -d'
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# Added by Antigravity
+export PATH="/Users/yuki-yoshii/.antigravity/antigravity/bin:$PATH"
