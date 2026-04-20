@@ -36,6 +36,11 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+########
+# PATH #
+########
+path=("$HOME/.local/bin" $path)
+
 ############
 # History  #
 ############
@@ -108,9 +113,10 @@ if command -v direnv >/dev/null 2>&1; then
   eval "$(direnv hook zsh)"
 fi
 
-# gh completion
+# gh completion (compinit より後に評価する必要があるため deferred)
 if command -v gh >/dev/null 2>&1; then
-  eval "$(gh completion -s zsh)"
+  zinit wait lucid id-as'gh-comp' nocd atload'eval "$(gh completion -s zsh)"' \
+    for zdharma-continuum/null
 fi
 
 # atuin: SQLite 履歴検索 (Ctrl-R を fzf から奪取する — こちらを優先)
@@ -142,3 +148,6 @@ fi
 #####################
 [[ -f "$ZSH_HOME/local.zsh" ]] && source "$ZSH_HOME/local.zsh"
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
