@@ -92,12 +92,9 @@ set hidden
 
 "バックアップファイルを作成しない
 set nobackup
-"バックアップファイルのディレクトリ指定
-set backupdir=$HOME/dotfiles/vim/backup
+set nowritebackup
 "アンドゥファイルを作成しない
 set noundofile
-"アンドゥファイルのディレクトリ指定
-set undodir=$HOME/dotfiles/vim/backup
 "スワップファイルを作成しない
 set noswapfile
 
@@ -150,50 +147,34 @@ if &term =~ "xterm"
 endif
 
 
-"dein Scripts-----------------------------
+"vim-plug Scripts-------------------------
 
 if &compatible
   set nocompatible
 endif
-" Add the dein installation directory into runtimepath
-set runtimepath+=~/.cache/dein/repos/github.com/Shougo/dein.vim
 
-if dein#load_state('~/.cache/dein')
-  call dein#begin('~/.cache/dein')
+call plug#begin('~/.vim/plugged')
 
-  call dein#add('~/.cache/dein/repos/github.com/Shougo/dein.vim')
-  call dein#add('Shougo/deoplete.nvim')
+Plug 'Shougo/deoplete.nvim'
+Plug 'Shougo/neosnippet.vim'
+Plug 'Shougo/neosnippet-snippets'
+Plug 'Yggdroot/indentLine'
+Plug 'preservim/nerdtree'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'ryanoasis/vim-devicons'
 
-  " Add or remove your plugins here like this:
-  call dein#add('Shougo/neosnippet.vim')
-  call dein#add('Shougo/neosnippet-snippets')
-  call dein#add('Yggdroot/indentLine')
-  call dein#add('scrooloose/nerdtree')
-  call dein#add('Shougo/neocomplete.vim')
-  call dein#add('Shougo/deoplete.nvim')
-  call dein#add('vim-airline/vim-airline')
-  call dein#add('vim-airline/vim-airline-themes')
-  call dein#add('ryanoasis/vim-devicons')
-
-  if !has('nvim')
-    call dein#add('roxma/nvim-yarp')
-    call dein#add('roxma/vim-hug-neovim-rpc')
-  endif
-
-  call dein#end()
-  call dein#save_state()
+if !has('nvim')
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
 endif
+
+call plug#end()
 
 filetype plugin indent on
 syntax enable
 
-" If you want to install not installed plugins on startup.
-if dein#check_install()
-    call dein#install()
-endif
-
-
-"End dein Scripts-------------------------
+"End vim-plug Scripts---------------------
 
 """"""""""""""""""
 "airline設定型
@@ -230,6 +211,6 @@ let g:airline#extensions#wordcount#enabled = 0
 let g:airline#extensions#default#layout = [['a', 'b', 'c'], ['x', 'y', 'z']]
 let g:airline_section_c = '%t'
 let g:airline_section_x = '%{&filetype}'
-let g:airline_section_z = '%3l:%2v %{airline#extensions#ale#get_warning()} %{airline#extensions#ale#get_error()}'
+let g:airline_section_z = '%3l:%2v'
 let g:airline#extensions#default#section_truncate_width = {}
 let g:airline#extensions#whitespace#enabled = 1
