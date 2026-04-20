@@ -1,23 +1,39 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# 日常メンテ: Homebrew / mise / zinit をまとめて最新化
+set -euo pipefail
 
-echo "Start Homebrew maintenance..."
+DOTPATH="${DOTPATH:-$(cd "$(dirname "$0")/.." && pwd)}"
 
-echo "Update"
+echo "==> brew update"
 brew update
 
-echo "Upgrade Homebrew"
+echo "==> brew upgrade"
 brew upgrade
 
-echo "Upgrade Homebrew Cask"
-brew upgrade --cask
+# Brewfile に追加された新しい formula/cask を取り込む
+# (dump はしない。リポジトリの Brewfile を正とする)
+echo "==> brew bundle (apply $DOTPATH/Brewfile)"
+brew bundle --file="$DOTPATH/Brewfile"
 
-echo "Cleanup"
+echo "==> brew cleanup"
 brew cleanup
 
-echo "Check Homebrew"
-brew doctor
+echo "==> brew autoremove"
+brew autoremove
 
-echo "dump Brewfile"
-brew bundle dump --force
+if command -v mise >/dev/null 2>&1; then
+  echo "==> mise upgrade"
+  mise upgrade || true
+fi
+
+# zinit とプラグインの更新 (サブシェル経由で非対話実行)
+if [[ -d "$HOME/zsh/zinit" ]]; then
+  echo "==> zinit self-update / plugin update"
+  zsh -i -c 'zinit self-update && zinit update --all' || true
+fi
+
+echo "==> brew doctor"
+brew doctor || true
 
 echo "Finish."
+echo "(Brewfile のドリフト確認は 'make doctor' で)"
