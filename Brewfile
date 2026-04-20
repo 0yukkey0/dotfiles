@@ -1,89 +1,48 @@
-tap "dart-lang/dart"
-tap "homebrew/bundle"
-tap "homebrew/services"
-tap "leoafarias/fvm"
-tap "ngrok/ngrok"
-brew "glib"
-brew "unbound"
-brew "gnutls"
-brew "emacs"
-brew "cask"
-brew "ghq"
+# Brewfile — 最小構成
+# 適用: `brew bundle --file=Brewfile` (既にインストール済みのものはスキップされる)
+# 言語ランタイム (python/node/ruby/java/flutter 等) は mise で管理するため brew には入れない
+
+############
+# Formulae #
+############
+
+# Shell & core
 brew "git"
-brew "gobject-introspection"
-brew "libtool"
-brew "guile"
-brew "harfbuzz"
+brew "gh"
+brew "ghq"
 brew "jq"
-brew "openjdk"
-brew "maven"
-brew "nmap"
-brew "nvm"
-brew "pdsh"
-brew "peco"
-brew "perl"
-brew "pipenv"
-brew "postgresql@14"
-brew "pyenv"
-brew "python@3.11"
-brew "python@3.12"
-brew "shellcheck"
-brew "tree"
-brew "vim"
-brew "watch"
-brew "wget"
-brew "xh"
-brew "zsh"
-brew "leoafarias/fvm/fvm"
-cask "1password"
-cask "clipy"
-cask "docker-desktop"
-cask "font-hackgen-nerd"
-cask "google-chrome"
-cask "google-japanese-ime"
-cask "font-inconsolata"
-cask "google-chrome"
-cask "google-japanese-ime"
-cask "iterm2"
-cask "ngrok"
-cask "notion"
-cask "raindropio"
-cask "raycast"
-cask "skitch"
-cask "slack"
-cask "spectacle"
-cask "visual-studio-code"
+
+# Modern CLI (.zshrc が統合する前提)
+brew "fzf"         # Ctrl-R / Ctrl-T / ghq ランチャ
+brew "fd"          # find の代替。fzf の FZF_DEFAULT_COMMAND
+brew "ripgrep"     # grep の代替
+brew "bat"         # cat の代替
+brew "eza"         # ls の代替
+brew "zoxide"      # cd の代替 (enhancd 置換)
+brew "atuin"       # 履歴管理 (Ctrl-R を fuzzy 検索 UI に置換)
+
+# Runtime manager
+brew "mise"
+brew "usage"       # mise の補完バックエンド
+
+#########
+# Casks #
+#########
+
+# Terminal & editor
 cask "warp"
-cask "zed"
-vscode "akamud.vscode-theme-onedark"
-vscode "coenraads.bracket-pair-colorizer"
-vscode "dariofuzinato.vue-peek"
-vscode "editorconfig.editorconfig"
-vscode "eg2.vscode-npm-script"
-vscode "esbenp.prettier-vscode"
-vscode "formulahendry.auto-close-tag"
-vscode "formulahendry.auto-complete-tag"
-vscode "formulahendry.auto-rename-tag"
-vscode "foxundermoon.shell-format"
-vscode "golang.go"
-vscode "k--kato.intellij-idea-keybindings"
-vscode "ms-azuretools.vscode-docker"
-vscode "ms-ceintl.vscode-language-pack-ja"
-vscode "ms-python.python"
-vscode "ms-python.vscode-pylance"
-vscode "ms-toolsai.jupyter"
-vscode "ms-toolsai.jupyter-keymap"
-vscode "ms-toolsai.jupyter-renderers"
-vscode "ms-toolsai.vscode-jupyter-cell-tags"
-vscode "ms-toolsai.vscode-jupyter-slideshow"
-vscode "ms-vscode-remote.remote-containers"
-vscode "octref.vetur"
-vscode "pkief.material-icon-theme"
-vscode "ritwickdey.liveserver"
-vscode "shan.code-settings-sync"
-vscode "streetsidesoftware.code-spell-checker"
-vscode "timonwong.shellcheck"
-vscode "visualstudioexptteam.intellicode-api-usage-examples"
-vscode "visualstudioexptteam.vscodeintellicode"
-vscode "vue.volar"
-vscode "yzhang.markdown-all-in-one"
+cask "cmux"
+cask "visual-studio-code"
+cask "claude"
+
+# Font (Powerlevel10k 用の Nerd Font)
+cask "font-hackgen-nerd"
+
+# Browser / IME
+cask "google-chrome"
+cask "google-japanese-ime"
+
+# Productivity
+cask "raycast"
+cask "1password"
+cask "notion"

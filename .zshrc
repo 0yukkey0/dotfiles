@@ -1,187 +1,144 @@
-export PATH="/usr/local/sbin:$PATH"
+# ~/.zshrc — dotfiles / minimal & modern
+#
+# レイアウト:
+#   $DOTFILES/zsh/*.zsh ... リポジトリ管理下のモジュール設定 (options, aliases, ...)
+#   $ZSH_HOME           ... ランタイム用ディレクトリ (~/zsh)
+#     ├ zinit/          ... プラグインマネージャ本体とプラグイン群
+#     ├ p10k.zsh        ... powerlevel10k の設定 (p10k configure で生成)
+#     └ history         ... コマンド履歴
+#
+# シークレット等は $ZSH_HOME/local.zsh か ~/.zshrc.local に書く (どちらも gitignore)
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
+###################################
+# Dotfiles root (symlink 解決済み)  #
+###################################
+DOTFILES="${${(%):-%N}:A:h}"
+
+################
+# ZSH runtime  #
+################
+export ZSH_HOME="$HOME/zsh"
+[[ -d $ZSH_HOME ]] || mkdir -p "$ZSH_HOME"
+
+#########
+# Brew  #
+#########
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+#################################
+# Powerlevel10k instant prompt  #
+#################################
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-### Added by Zinit's installer
-if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
-    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
-    command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
-    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
-        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
-        print -P "%F{160}▓▒░ The clone has failed.%f%b"
-fi
-
-source "$HOME/.zinit/bin/zinit.zsh"
-autoload -Uz _zinit
-(( ${+_comps} )) && _comps[zinit]=_zinit
-
-zinit ice depth=1; zinit light romkatv/powerlevel10k
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-zinit wait lucid for \
- atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" \
-    zdharma/fast-syntax-highlighting \
- blockf \
-    zsh-users/zsh-completions \
- blockf atpull'zinit creinstall -q .' \
-    zsh-users/zsh-completions \
- atload"!_zsh_autosuggest_start" \
-    zsh-users/zsh-autosuggestions
-
-## cdを超強化
-#zinit load "b4b4r07/enhancd", use:"init.sh", lazy:true
-zinit light b4b4r07/enhancd
-## 補完で小文字でも大文字にマッチさせる
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-
-## 補完候補を一覧表示したとき、Tabや矢印で選択できるようにする
-zstyle ':completion:*:default' menu select=1
-
-## コマンド履歴検索
-function peco-history-selection() {
-  BUFFER=`history -n 1 | peco`
-  CURSOR=$#BUFFER
-  zle reset-prompt
-}
-zle -N peco-history-selection
-bindkey '^R' peco-history-selection
-
-## gitリポジトリ検索・移動
-function peco-src () {
-  local selected_dir=$(ghq list -p | peco)
-  if [ -n "$selected_dir" ]; then
-    BUFFER="cd ${selected_dir}"
-    zle accept-line
-  fi
-}
-zle -N peco-src
-bindkey '^G' peco-src
-
-## 履歴保存管理
-# メモリに保存する履歴の件数を指定する
-export HISTSIZE=10000
-
-# ファイルに保存する履歴の件数を指定する
+############
+# History  #
+############
+export HISTFILE="$ZSH_HOME/history"
+export HISTSIZE=100000
 export SAVEHIST=1000000
 
-
-zinit ice as"program" from"gh-r" mv"bat* -> bat" pick"bat/bat"
-zinit light sharkdp/bat
-
-# 以下はただのエイリアス設定
-if builtin command -v bat > /dev/null; then
-  alias cat="bat"
-fi
-
-# 色を使用出来るようにする
-autoload -Uz colors
-colors
-
-# 補完で小文字でも大文字にマッチさせる
+#########################
+# Completion / options  #
+#########################
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-
-# [TAB] でパス名の補完候補を表示したあと、
-# 続けて [TAB] を押すと候補からパス名を選択できるようになる
-# 候補を選ぶには [TAB] か Ctrl-N,B,F,P
 zstyle ':completion:*:default' menu select=1
- 
-# コマンドのスペルを訂正する
-setopt correct
+# Cache (起動高速化)
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$ZSH_HOME/zcompcache"
 
-# 直前と同じコマンドの場合はヒストリに追加しない
-setopt hist_ignore_dups
- 
-# 同じコマンドをヒストリに残さない
-setopt hist_ignore_all_dups
+##################
+# Zinit (plugins)#
+##################
+ZINIT_HOME="$ZSH_HOME/zinit"
+if [[ ! -d $ZINIT_HOME ]]; then
+  command git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
+source "$ZINIT_HOME/zinit.zsh"
 
+# prompt
+zinit ice depth=1
+zinit light romkatv/powerlevel10k
+[[ -f "$ZSH_HOME/p10k.zsh" ]] && source "$ZSH_HOME/p10k.zsh"
 
-########
-# PATH #
-########
+# deferred plugins
+zinit wait lucid for \
+  atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" \
+    z-shell/F-Sy-H \
+  blockf \
+    zsh-users/zsh-completions \
+  atload"!_zsh_autosuggest_start" \
+    zsh-users/zsh-autosuggestions \
+    Aloxaf/fzf-tab
 
-# nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"
+#########################
+# Modular config (repo) #
+#########################
+for f in "$DOTFILES/zsh/"*.zsh(N); do
+  source "$f"
+done
 
-# pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-# pyenvさんに自動補完機能を提供してもらう
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init -)"
+#############################
+# Modern CLI integrations   #
+#############################
+# fzf: Ctrl-R 履歴検索 / Ctrl-T ファイル / Alt-C ディレクトリ
+if command -v fzf >/dev/null 2>&1; then
+  source <(fzf --zsh)
+  export FZF_DEFAULT_OPTS='--height=60% --layout=reverse --border --info=inline'
+  command -v fd >/dev/null 2>&1 && export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 fi
 
-# go
-# export GOPATH=$(go env GOPATH)
-# export PATH=$PATH:$GOPATH/bin
+# zoxide: cd を賢く (enhancd の置き換え)
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh --cmd cd)"
+fi
 
-# flutter
-export PATH=$PATH:$HOME/flutter/bin
+# mise: pyenv / nvm / rbenv / sdkman / fvm を一元化
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
 
-# go
-# export GOPATH=$(go env GOPATH)
-# export PATH=$PATH:$GOPATH/bin
+# direnv: プロジェクト別の環境変数
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
+fi
 
-# flutter
-export PATH=$PATH:$HOME/flutter/bin
+# gh completion
+if command -v gh >/dev/null 2>&1; then
+  eval "$(gh completion -s zsh)"
+fi
 
-#poetry
-export PATH="/Users/yuki-yoshii/.local/bin:$PATH"
+# atuin: SQLite 履歴検索 (Ctrl-R を fzf から奪取する — こちらを優先)
+if command -v atuin >/dev/null 2>&1; then
+  eval "$(atuin init zsh)"
+fi
 
+############
+# Keybinds #
+############
+# Ctrl-G: ghq 管理下のリポジトリへ fzf で移動
+if command -v ghq >/dev/null 2>&1 && command -v fzf >/dev/null 2>&1; then
+  fzf-ghq() {
+    local dir
+    dir=$(ghq list -p | fzf --prompt='repo> ' \
+      --preview 'command -v eza >/dev/null && eza -T --level=2 --color=always {} || ls {}')
+    if [[ -n $dir ]]; then
+      BUFFER="cd $dir"
+      zle accept-line
+    fi
+    zle reset-prompt
+  }
+  zle -N fzf-ghq
+  bindkey '^G' fzf-ghq
+fi
 
-# mysql
-export PATH="/usr/local/opt/mysql@5.7/bin:$PATH"
-
-# java
-export JAVA_HOME=/Users/yuki-yoshii/.sdkman/candidates/java/current/bin/java
-export PATH="$JAVA_HOME:$PATH"
-#########
-# alias #
-#########
-
-# General
-export LSCOLORS=gxfxcxdxbxegedabagacad
-alias ls='ls -G'
-alias la='ls -la'
-alias ll='ls -lh'
-
-#npmのリストを見る
-alias npm_list='npm list --depth=0'
-
-## git
-alias g='git'
-alias ga='git add'
-alias gs='git status'
-alias gp='git push'
-alias gb-dd='git branch --merged |egrep -v '\''\*|master'\''| xargs git branch -d'
-
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-# Added by Antigravity
-export PATH="/Users/yuki-yoshii/.antigravity/antigravity/bin:$PATH"
-
-# flutter
-export PATH="$PATH":"$HOME/fvm/default/bin"
-
-# rvenv
-eval "$(rbenv init - zsh)"
-
-# ADBコマンド
-export PATH="$PATH":"/Users/yuki-yoshii/Library/Android/sdk/platform-tools/"
-
-#rust
-source "$HOME/.cargo/env"
-
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/yuki-yoshii/.rd/bin:$PATH"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+#####################
+# Local overrides   #
+#####################
+[[ -f "$ZSH_HOME/local.zsh" ]] && source "$ZSH_HOME/local.zsh"
+[[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
