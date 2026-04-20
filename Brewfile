@@ -30,7 +30,6 @@ brew "usage"       # mise の補完バックエンド
 #########
 
 # Terminal & editor
-cask "warp"
 cask "cmux"
 cask "visual-studio-code"
 cask "claude"
@@ -46,3 +45,4 @@ cask "google-japanese-ime"
 cask "raycast"
 cask "1password"
 cask "notion"
+
